@@ -1,72 +1,111 @@
+let duvetDatabase = [];
+
+// Charger la base de données au démarrage
+fetch('duvets.json')
+    .then(response => response.json())
+    .then(data => {
+        duvetDatabase = data.duvets;
+        console.log('Base de données chargée :', duvetDatabase.length, 'duvets');
+    })
+    .catch(error => {
+        console.error('Erreur de chargement:', error);
+        alert('Erreur lors du chargement de la base de données');
+    });
+
 function recommanderDuvet() {
     const temperature = parseFloat(document.getElementById('temperature').value);
     const resultat = document.getElementById('resultat');
     
     if (isNaN(temperature)) {
-        resultat.innerHTML = '<p style="color: red;">A quelle température souhaitez vous utiliser votre sac de couchage (en °C)</p>';
+        resultat.innerHTML = '<p style="color: red;">⚠️ Veuillez entrer une température valide</p>';
         return;
     }
     
-    let recommendation = '';
-    
-    if (temperature >= 10) {
-        recommendation = `
-            <div class="recommendation">
-                <h2>☀️ Duvet Été / 3 Saisons</h2>
-                <p><strong>Type :</strong> Duvet léger (température confort +10°C à +5°C)</p>
-                <p><strong>Garnissage :</strong> Duvet 400-600g ou synthétique léger</p>
-                <div class="details">
-                    <p><strong>Pourquoi ce choix ?</strong></p>
-                    <p>À ${temperature}°C, un duvet léger sera suffisant. Il vous gardera au chaud sans vous faire transpirer.</p>
-                    <p><strong>Prix indicatif :</strong> 80€ - 200€</p>
-                    <p><strong>Exemples :</strong> Forclaz MT500, Quechua S10</p>
-                </div>
-            </div>
-        `;
-    } else if (temperature >= 0) {
-        recommendation = `
-            <div class="recommendation">
-                <h2>🍂 Duvet 3 Saisons</h2>
-                <p><strong>Type :</strong> Duvet intermédiaire (température confort +5°C à -5°C)</p>
-                <p><strong>Garnissage :</strong> Duvet 700-900g ou synthétique moyen</p>
-                <div class="details">
-                    <p><strong>Pourquoi ce choix ?</strong></p>
-                    <p>À ${temperature}°C, vous avez besoin d'un duvet polyvalent qui protège bien du froid sans être trop lourd.</p>
-                    <p><strong>Prix indicatif :</strong> 150€ - 350€</p>
-                    <p><strong>Exemples :</strong> Forclaz MT900, Marmot Trestles</p>
-                </div>
-            </div>
-        `;
-    } else if (temperature >= -10) {
-        recommendation = `
-            <div class="recommendation">
-                <h2>❄️ Duvet Hiver</h2>
-                <p><strong>Type :</strong> Duvet chaud (température confort -5°C à -15°C)</p>
-                <p><strong>Garnissage :</strong> Duvet 1000-1300g haute qualité</p>
-                <div class="details">
-                    <p><strong>Pourquoi ce choix ?</strong></p>
-                    <p>À ${temperature}°C, il fait froid ! Vous avez besoin d'un duvet bien isolé avec un bon garnissage en duvet d'oie.</p>
-                    <p><strong>Prix indicatif :</strong> 250€ - 500€</p>
-                    <p><strong>Exemples :</strong> Mountain Hardwear Lamina, The North Face Inferno</p>
-                </div>
-            </div>
-        `;
-    } else {
-        recommendation = `
-            <div class="recommendation">
-                <h2>🧊 Duvet Grand Froid / Expédition</h2>
-                <p><strong>Type :</strong> Duvet extrême (température confort -15°C et moins)</p>
-                <p><strong>Garnissage :</strong> Duvet 1500g+ premium (800+ cuin)</p>
-                <div class="details">
-                    <p><strong>Pourquoi ce choix ?</strong></p>
-                    <p>À ${temperature}°C, c'est du sérieux ! Il vous faut un duvet d'expédition de haute qualité pour rester en sécurité.</p>
-                    <p><strong>Prix indicatif :</strong> 400€ - 800€+</p>
-                    <p><strong>Exemples :</strong> Mountain Equipment Glacier, Rab Expedition</p>
-                    <p><strong>⚠️ Conseil :</strong> Envisagez aussi un matelas isolant R-value 5+ et une tente 4 saisons.</p>
-                </div>
-            </div>
-        `;
+    if (duvetDatabase.length === 0) {
+        resultat.innerHTML = '<p style="color: orange;">⏳ Chargement de la base de données...</p>';
+        return;
     }
     
-    resultat.innerHTML = recommendation;
+    // Trouver les duvets adaptés
+    // Un duvet est adapté si la température demandée est >= température limite
+    const duvetsAdaptes = duvetDatabase.filter(duvet => {
+        return temperature >= duvet.temperatureLimit;
+    });
+    
+    if (duvetsAdaptes.length === 0) {
+        resultat.innerHTML = `
+            <div class="recommendation">
+                <h2>🧊 Conditions extrêmes</h2>
+                <p>À ${temperature}°C, vous avez besoin d'un duvet d'expédition grand froid.</p>
+                <p>Nous recommandons de consulter un spécialiste pour des conditions aussi extrêmes.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Trier par température confort (du plus chaud au plus froid)
+    duvetsAdaptes.sort((a, b) => a.temperatureConfort - b.temperatureConfort);
+    
+    // Prendre les 3 premiers (ou moins si pas assez)
+    const topDuvets = duvetsAdaptes.slice(0, 3);
+    
+    let html = `
+        <div class="recommendation">
+            <h2>🎯 Recommandations pour ${temperature}°C</h2>
+            <p>Voici ${topDuvets.length} duvet(s) adapté(s) à vos besoins :</p>
+        </div>
+    `;
+    
+    topDuvets.forEach((duvet, index) => {
+        const badge = index === 0 ? '⭐ MEILLEUR CHOIX' : `Option ${index + 1}`;
+        html += `
+            <div class="duvet-card ${index === 0 ? 'best-choice' : ''}">
+                <div class="badge">${badge}</div>
+                <img src="${duvet.image}" alt="${duvet.nom}">
+                <h3>${duvet.nom}</h3>
+                <p class="marque">${duvet.marque}</p>
+                
+                <div class="specs">
+                    <div class="spec-item">
+                        <span class="label">🌡️ Confort :</span>
+                        <span class="value">${duvet.temperatureConfort}°C</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="label">❄️ Limite :</span>
+                        <span class="value">${duvet.temperatureLimit}°C</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="label">🧊 Extrême :</span>
+                        <span class="value">${duvet.temperatureExtreme}°C</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="label">📦 Garnissage :</span>
+                        <span class="value">${duvet.garnissage}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="label">⚖️ Poids :</span>
+                        <span class="value">${duvet.poids}g</span>
+                    </div>
+                    <div class="spec-item price">
+                        <span class="label">💰 Prix :</span>
+                        <span class="value">${duvet.prix}€</span>
+                    </div>
+                </div>
+                
+                <a href="${duvet.lien}" target="_blank" class="btn-link">
+                    Voir le produit →
+                </a>
+            </div>
+        `;
+    });
+    
+    resultat.innerHTML = html;
+}
+
+// Fonction pour rechercher par nom (bonus)
+function rechercherParNom(nom) {
+    return duvetDatabase.filter(duvet => 
+        duvet.nom.toLowerCase().includes(nom.toLowerCase()) ||
+        duvet.marque.toLowerCase().includes(nom.toLowerCase())
+    );
 }
