@@ -100,3 +100,115 @@ button:hover {
     border-radius: 5px;
     margin-top: 15px;
 }
+
+
+
+.duvet-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.duvet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.duvet-card.best-choice {
+    border: 3px solid #4caf50;
+    background: #f1f8f4;
+}
+
+.badge {
+    display: inline-block;
+    background: #4caf50;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.duvet-card img {
+    width: 100%;
+    max-width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 10px auto;
+    display: block;
+}
+
+.duvet-card h3 {
+    color: #333;
+    margin: 15px 0 5px 0;
+    font-size: 20px;
+}
+
+.marque {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center !important;
+}
+
+.specs {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.spec-item:last-child {
+    border-bottom: none;
+}
+
+.spec-item .label {
+    font-weight: 600;
+    color: #555;
+}
+
+.spec-item .value {
+    color: #333;
+}
+
+.spec-item.price {
+    background: #fff3cd;
+    margin: 10px -15px -15px -15px;
+    padding: 12px 15px;
+    border-radius: 0 0 8px 8px;
+    font-size: 18px;
+}
+
+.spec-item.price .value {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.btn-link {
+    display: block;
+    text-align: center;
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background 0.3s;
+}
+
+.btn-link:hover {
+    background: #5568d3;
+}
